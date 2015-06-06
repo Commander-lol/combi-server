@@ -60,15 +60,24 @@ var ansi = require("bp-utilities").ansi,
                 fileStream.pipe(this);
             };
             res.sendFile = function (req, path) {
-                var results = q.defer();
-                fs.readFile(path, function (err, file) {
-                    if (err) {
-                        results.reject(err);
+                var results = q.defer(),
+                    stat,
+                    stream;
+                try {
+                    if (fs.existsSync(path) && (stat = fs.statSync(path)).isFile()) {
+                        stream = fs.createReadStream(path, {encoding: 'utf8'});
+                        stream.on('end', function () {
+                            results.resolve([req, res]);
+                        });
+                        stat.filepath = path;
+                        res.sendFileStream(stream, stat);
                     } else {
-                        res.send(file, {'Content-Type': mime.find(path)});
+                        res.error(404, {code: 404, message: "File " + path + " not found"});
                         results.resolve([req, res]);
                     }
-                });
+                } catch (e) {
+                    results.reject(e);
+                }
                 return results.promise;
             };
             res.finish = function finish() {
