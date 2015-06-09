@@ -1,7 +1,9 @@
 /*jslint node: true */
 'use strict';
-var ansi = require("bp-utilities").ansi,
-    mime = require("bp-utilities").mime,
+var util = require("bp-utilities"),
+    ansi = util.ansi,
+    mime = util.mime,
+    jsn = util.jsn,
     q = require("q"),
     fs = require("fs"),
     promiseConstructor = q.resolve(1).constructor,
@@ -32,17 +34,23 @@ var ansi = require("bp-utilities").ansi,
         };
         that.enhanceResponse = function (res) {
             res.finished = false;
+            res.headers = {};
+            res.setHeader = function setHeader(key, value) {
+                res.headers[key] = value;
+            };
+            res.setHeaders = function setHeaders(headers) {
+                res.headers = jsn.merge(res.headers, headers);
+            };
             res.json = function json(obj) {
-                this.send(JSON.stringify(obj), {'Content-Type': 'application/json'});
+                this.send(200, JSON.stringify(obj), {'Content-Type': 'application/json'});
             };
             res.error = function error(code, obj) {
-                this.writeHead(code, { 'Content-Type': 'application/json' });
-                this.json(obj);
+                this.send(code, JSON.stringify(obj), { 'Content-Type': 'application/json' });
             };
-            res.send = function send(data, headers) {
-                headers = headers || {'Content-Type': 'text/plain'};
+            res.send = function send(code, data, headers) {
+                headers = jsn.merge({'Content-Type': 'text/plain'}, res.headers);
                 if (!this.headersSent) {
-                    this.writeHead(200, headers);
+                    this.writeHead(code, headers);
                 }
                 this.write(data);
                 this.finish();
