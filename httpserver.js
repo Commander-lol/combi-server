@@ -48,7 +48,8 @@ var util = require("bp-utilities"),
                 this.send(code, JSON.stringify(obj), { 'Content-Type': 'application/json' });
             };
             res.send = function send(code, data, headers) {
-                headers = jsn.merge({'Content-Type': 'text/plain'}, res.headers);
+                headers = jsn.merge(res.headers, headers);
+                headers = jsn.merge({'Content-Type': 'text/plain'}, headers);
                 if (!this.headersSent) {
                     this.writeHead(code, headers);
                 }
