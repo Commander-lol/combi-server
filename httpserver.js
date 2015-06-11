@@ -96,13 +96,21 @@ var util = require("bp-utilities"),
             return res;
         };
         that.asd = 0;
-        that.listen = function listen(http) {
+        that.listen = function listen(http, options) {
             that.funcList.push(function ensureEnd(req, res, next) {
                 if (!res.finished) {
                     res.finish();
                 }
                 return next();
             });
+            // Including a blank options object is not preferred, as it can
+            // change the configuration of certain http implementations in
+            // unexpected ways.
+            // Instead, bind an options object only if provided (and a raw
+            // object)
+            if (typeof (options) === 'object') {
+                http.createServer = http.createServer.bind(http, options);
+            }
             that.server = http.createServer(function (req, res) {
                 var reqx = that.enhanceRequest(req),
                     resx = that.enhanceResponse(res),
