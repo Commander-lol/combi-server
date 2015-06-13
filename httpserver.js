@@ -95,40 +95,31 @@ var util = require("bp-utilities"),
             };
             return res;
         };
-        that.asd = 0;
-        that.listen = function listen(http, options) {
-            that.funcList.push(function ensureEnd(req, res, next) {
-                if (!res.finished) {
-                    res.finish();
-                }
-                return next();
-            });
-            // Including a blank options object is not preferred, as it can
-            // change the configuration of certain http implementations in
-            // unexpected ways.
-            // Instead, bind an options object only if provided (and a raw
-            // object)
-            if (typeof (options) === 'object') {
-                http.createServer = http.createServer.bind(http, options);
-            }
+
+        that.listen = function listen(http) {
             that.server = http.createServer(function (req, res) {
                 var reqx = that.enhanceRequest(req),
                     resx = that.enhanceResponse(res),
-                    i,
-                    core = q.defer(),
                     wrapfunc = function (fn, req, res) {
-                        var boundNext = that.next.bind(fn, req, res),
-                            result;
+                        var core = q.defer(),
+                            promiseConstructor = q.resolve(1).constructor,
+                            result,
+                            next = function () {
+                                core.resolve([req, res]);
+                                return [req, res];
+                            };
+
                         if (res.finished) {
-                            return boundNext();
+                            next();
                         } else {
-                            result = fn(req, res, boundNext);
-                            if (typeof result === 'object' && result.constructor === promiseConstructor) {
-                                return result;
+                            result = fn(req, res, next);
+                            if (typeof (result) === 'object' && result.constructor === promiseConstructor) {
+                                core.resolve(result);
                             } else {
-                                return q(boundNext());
+                                next();
                             }
                         }
+                        return core.promise;
                     };
 
                 resx.on("finish", function () {
@@ -140,16 +131,19 @@ var util = require("bp-utilities"),
                         col = ansi.red;
                     }
 
-                    console.log(req.method + " " + ansi.bold(col(resx.statusCode)) + " " + reqx.url);
+                    console.log(ansi.blue(req.ip) + " " + req.method + " " + ansi.bold(col(resx.statusCode)) + " " + reqx.url);
                     if (reqx.db) {
                         reqx.db.close();
                     }
                 });
 
-                that.funcList.reduce(function (soFar, f) {
-                    return soFar.spread(wrapfunc.bind(f, f));
-                }, q([reqx, resx])).done();
-
+                that.funcList.reduce(function (chain, fn) {
+                    return chain.spread(wrapfunc.bind(fn, fn));
+                }, q([reqx, resx])).done(function ensureEnd() {
+                    if (!resx.finished) {
+                        resx.finish();
+                    }
+                });
             }).listen(that.port);
 
             console.log(ansi.blue(that.appname) + " now listening on port " + ansi.magenta(that.port));
