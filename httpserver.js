@@ -141,7 +141,7 @@ var util = require("bp-utilities"),
                     return chain.spread(wrapfunc.bind(fn, fn));
                 }, q([reqx, resx])).done(function ensureEnd() {
                     if (!resx.finished) {
-                        resx.finish();
+                        resx.error(404, {code: 404, message: "No resolution for request " + reqx.url});
                     }
                 });
             }).listen(that.port);
