@@ -132,7 +132,7 @@ var util = require("bp-utilities"),
                     }
 
                     console.log(ansi.blue(req.ip) + " " + req.method + " " + ansi.bold(col(resx.statusCode)) + " " + reqx.url);
-                    if (reqx.db) {
+                    if (reqx.db && that.closeDBonFinish) {
                         reqx.db.close();
                     }
                 });
