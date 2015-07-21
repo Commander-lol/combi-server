@@ -102,7 +102,6 @@ var util = require("bp-utilities"),
                     resx = that.enhanceResponse(res),
                     wrapfunc = function (fn, req, res) {
                         var core = q.defer(),
-                            promiseConstructor = q.resolve(1).constructor,
                             result,
                             next = function () {
                                 core.resolve([req, res]);
@@ -113,7 +112,7 @@ var util = require("bp-utilities"),
                             next();
                         } else {
                             result = fn(req, res, next);
-                            if (typeof (result) === 'object' && result.constructor === promiseConstructor) {
+                            if (typeof (result) === 'object' && result.then && result.spread) {
                                 core.resolve(result);
                             } else {
                                 next();

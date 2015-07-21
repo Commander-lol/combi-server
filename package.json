@@ -1,6 +1,6 @@
 {
   "name": "bp-http-server",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "A wrapper for the built-in node.js http server, providing additional functionality",
   "main": "httpserver.js",
   "repository": {
