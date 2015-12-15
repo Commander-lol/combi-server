@@ -7,16 +7,23 @@ var WSServer = require("websocket").server,
                 var msg, funcs,
                     unwindCallbacks = function (connection, cbs, message) {
                         return cbs.reduce(function(prev, cur){
-                            console.log(message);
                             return prev.then(cur.cb.bind(connection, connection, cur.type(message)));
                         }, q(message)).done();
                     };
-
-                console.log(message);
                 try {
                     msg = JSON.parse(message);
                 } catch (e) {
                     connection.sendJson({type: "error", payload: {code: 400, message: "Bad request, must be valid JSON"}});
+                    return;
+                }
+
+                if (!msg.type && !msg.payload) {
+                    connection.sendJson({type: "error", payload: {code: 400, message: "Bad request, must contain 'type' and 'payload' parameters"}});
+                    return;
+                }
+
+                if (!that.callbacks.hasOwnProperty(msg.type)) {
+                    connection.sendJson({type: "error", payload: {code: 400, message: "Bad request, unsupported message type"}});
                     return;
                 }
 
