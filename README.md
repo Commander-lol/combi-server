@@ -33,6 +33,11 @@ Options with other names will be added to the server object, allowing for custom
 with the same name (options integration happens before internal config). The following properties and methods are set after options are added (will overwrite 
 custom properties): `funcList`, `wsList`, `ws`, `wss`, `use`, `static`, `next`, `enhanceRequest`, `enhanceResponse`, `listen`, `server`.
 
+In addition to this, the following middleware are bundled with combi-server:
+* _Static File Server_: Serves files from the specified path as if they were in the root directory, enabled by calling `http.static(path);` in place of `http.use`. 
+For example, this would serve all files from the `/public` directory of the server: `http.static(path.join(__dirname, 'public'));`. A request to 
+`example.com/images/kitten.png` would serve the file `/public/images/kitten.png`.
+
 ### Adding Middleware
 
 #### HTTP Middleware
