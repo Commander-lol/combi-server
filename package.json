@@ -1,6 +1,6 @@
 {
   "name": "combi-server",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A lightweight combined http/ws api server framework built to be extended",
   "main": "httpserver.js",
   "repository": {

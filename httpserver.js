@@ -19,6 +19,15 @@ var util = require("bp-utilities"),
                 that[p] = config[p];
             }
         };
+
+        if (!that.useAnsi) {
+            for (p in ansi) {
+                if (ansi.hasOwnProperty(p)) {
+                    ansi[p] = function echo (content) {return content;};
+                }
+            }
+        }
+
         that.ws = {
             do: function addWsFunc(event, callback) {
                 that.wsList.push({ev: event, cb: callback});
