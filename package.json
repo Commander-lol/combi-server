@@ -1,11 +1,11 @@
 {
-  "name": "bp-http-server",
+  "name": "combi-server",
   "version": "1.0.0",
-  "description": "A wrapper for the built-in node.js http server, providing additional functionality",
+  "description": "A lightweight combined http/ws api server framework built to be extended",
   "main": "httpserver.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/BuyPro/http-server.git"
+    "url": "https://github.com/Commander-lol/combi-server.git"
   },
   "keywords": [
     "http",
@@ -15,9 +15,9 @@
   "author": "Louis Capitanchik",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/BuyPro/http-server/issues"
+    "url": "https://github.com/Commander-lol/combi-server/issues"
   },
-  "homepage": "https://github.com/BuyPro/http-server",
+  "homepage": "https://github.com/Commander-lol/combi-server",
   "dependencies": {
     "bp-utilities": "^1.6.0",
     "q": "^1.4.1",

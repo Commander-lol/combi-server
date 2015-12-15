@@ -1,2 +1,2 @@
 # http-server
-A wrapper for the built-in node.js http server, providing additional functionality
+*A lightweight combined http/ws server framework built to be extended*
