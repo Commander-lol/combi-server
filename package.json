@@ -9,8 +9,10 @@
   },
   "keywords": [
     "http",
+    "ws",
+    "websocket",
     "server",
-    "bp"
+    "api"
   ],
   "author": "Louis Capitanchik",
   "license": "ISC",
