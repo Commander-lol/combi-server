@@ -168,7 +168,7 @@ var util = require("bp-utilities"),
             }).listen(that.port);
             console.log(ansi.blue(that.appname) + " now listening on port " + ansi.magenta(that.port));
 
-            if(that.websocket.enabled) {
+            if(that.websocket && that.websocket.enabled) {
                 that.wss = new WSServer({httpServer: that.server}, that.wsList);
                 console.log(ansi.blue(that.appname) + " websocket listening on port " + ansi.magenta(that.port));
             } else {
