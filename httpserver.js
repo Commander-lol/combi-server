@@ -12,13 +12,13 @@ var util = require("bp-utilities"),
     querystring = require("querystring"),
     HttpServer = function (config) {
         var that = this, p;
-        that.funcList = [];
-        that.wsList = [];
         for (p in config) {
             if (config.hasOwnProperty(p)) {
                 that[p] = config[p];
             }
         };
+        that.funcList = [];
+        that.wsList = [];
 
         if (!that.useAnsi) {
             for (p in ansi) {
