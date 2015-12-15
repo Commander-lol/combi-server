@@ -39,6 +39,9 @@ var util = require("bp-utilities"),
         that.use = function (fn) {
             that.funcList.push(fn);
         };
+        that.static = function(path) {
+            that.use(require("./local_modules/static")(path));
+        };
         that.next = function () {
             return q.resolve(arguments);
         };
