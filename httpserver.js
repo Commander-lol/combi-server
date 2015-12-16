@@ -2,8 +2,9 @@
 'use strict';
 var util = require("bp-utilities"),
     ansi = util.ansi,
-    mime = util.mime,
     jsn = util.jsn,
+    mime = require("mime"),
+    path = require("path"),
     q = require("q"),
     fs = require("fs"),
     http = require("http"),
@@ -82,7 +83,7 @@ var util = require("bp-utilities"),
             res.sendFileStream = function sendFileStream(fileStream, stat) {
                 if (!this.headersSent) {
                     this.writeHead(200, {
-                        'Content-Type': mime.find(stat.filepath),
+                        'Content-Type': mime.lookup(stat.filepath),
                         'Content-Length': stat.size
                     });
                 }
@@ -118,6 +119,16 @@ var util = require("bp-utilities"),
             };
             return res;
         };
+
+        if (that.websocket && (that.websocket.lib == null || that.websocket.lib === true)) { //lib undefined or true, strict equals true for sake of clarity
+            that.use(function(req, res, next) {
+                if (req.url === '/ws.lib') {
+                    return res.sendFile(req, path.join(__dirname, "local_modules", "ws.js"));
+                } else {
+                    return next();
+                }
+            })
+        }
 
         that.listen = function listen() {
             that.server = http.createServer(function (req, res) {

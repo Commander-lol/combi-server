@@ -78,6 +78,13 @@ var WSServer = require("websocket").server,
             connection.sendJson = function(json) {
                 connection.sendUTF(JSON.stringify(json));
             };
+            connection.sendPayload = function(type, obj) {
+                var json = {
+                    type: type,
+                    payload: obj
+                };
+                connection.sendJson(json);
+            };
             connection._id = cind;
 
             connection.on("message", onMessage.bind(connection, connection));
