@@ -12,33 +12,29 @@ var util = require("bp-utilities"),
     promiseConstructor = q.resolve(1).constructor,
     querystring = require("querystring"),
     HttpServer = function (config) {
-        var that = this, p;
+
+        var that = this,
+            p,
+            funcList = [],
+            wsList = [];
+
         for (p in config) {
             if (config.hasOwnProperty(p)) {
                 that[p] = config[p];
             }
         };
-        that.funcList = [];
-        that.wsList = [];
 
-        if (!that.useAnsi) {
-            for (p in ansi) {
-                if (ansi.hasOwnProperty(p)) {
-                    ansi[p] = function echo (content) {return content;};
-                }
-            }
-        }
 
         that.ws = {
             do: function addWsFunc(event, callback) {
-                that.wsList.push({ev: event, cb: callback});
+                wsList.push({ev: event, cb: callback});
             },
             broadcast: function(obj) {
                 that.wss.broadcast(JSON.stringify(obj));
             }
         };
         that.use = function (fn) {
-            that.funcList.push(fn);
+            funcList.push(fn);
         };
         that.static = function(path) {
             that.use(require("./local_modules/static")(path));
@@ -169,7 +165,7 @@ var util = require("bp-utilities"),
                     console.log(ansi.blue(req.ip) + " " + req.method + " " + ansi.bold(col(resx.statusCode)) + " " + reqx.url);
                 });
 
-                that.funcList.reduce(function (chain, fn) {
+                funcList.reduce(function (chain, fn) {
                     return chain.spread(wrapfunc.bind(fn, fn));
                 }, q([reqx, resx])).done(function ensureEnd() {
                     if (!resx.finished) {
@@ -180,7 +176,7 @@ var util = require("bp-utilities"),
             console.log(ansi.blue(that.appname) + " now listening on port " + ansi.magenta(that.port));
 
             if(that.websocket && that.websocket.enabled) {
-                that.wss = new WSServer({httpServer: that.server}, that.wsList);
+                that.wss = new WSServer({httpServer: that.server}, wsList);
                 console.log(ansi.blue(that.appname) + " websocket listening on port " + ansi.magenta(that.port));
             } else {
                 that.wss = null;
