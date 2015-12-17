@@ -12,7 +12,6 @@ var util = require("bp-utilities"),
     promiseConstructor = q.resolve(1).constructor,
     querystring = require("querystring"),
     HttpServer = function (config) {
-
         var that = this,
             p,
             funcList = [],
@@ -24,7 +23,6 @@ var util = require("bp-utilities"),
             }
         };
 
-
         that.ws = {
             do: function addWsFunc(event, callback) {
                 wsList.push({ev: event, cb: callback});
@@ -33,15 +31,19 @@ var util = require("bp-utilities"),
                 that.wss.broadcast(JSON.stringify(obj));
             }
         };
+
         that.use = function (fn) {
             funcList.push(fn);
         };
+
         that.static = function(path) {
             that.use(require("./local_modules/static")(path));
         };
+
         that.next = function () {
             return q.resolve(arguments);
         };
+
         that.enhanceRequest = function (req) {
             // First check if the request was proxied,
             // then if any of the other variables are
@@ -52,6 +54,7 @@ var util = require("bp-utilities"),
                      req.connection.socket.remoteAddress;
             return req;
         };
+
         that.enhanceResponse = function (res) {
             res.finished = false;
             res.headers = {};
@@ -161,7 +164,6 @@ var util = require("bp-utilities"),
                     if (resx.statusCode >= 400) {
                         col = ansi.red;
                     }
-
                     console.log(ansi.blue(req.ip) + " " + req.method + " " + ansi.bold(col(resx.statusCode)) + " " + reqx.url);
                 });
 
