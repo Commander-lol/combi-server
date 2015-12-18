@@ -12,10 +12,30 @@ var util = require("bp-utilities"),
     promiseConstructor = q.resolve(1).constructor,
     querystring = require("querystring"),
     HttpServer = function (config) {
-        var that = this,
+        var noop = function noop () {},
+            that = this,
             p,
             funcList = [],
-            wsList = [];
+            funcsBeforeListen = [noop],
+            funcsAfterListen = [noop],
+            wsList = [],
+            makeChainable = function(fn) {
+                var args = [].splice.call(arguments, 1),
+                    core = q.defer(),
+                    result,
+                    next = function () {
+                        core.resolve(args);
+                        return args;
+                    };
+                args.push(next);
+                result = fn.apply(fn, args);
+                if (typeof (result) === 'object' && result.then && result.spread) {
+                    core.resolve(result);
+                } else {
+                    next();
+                }
+                return core.promise;
+            };
 
         for (p in config) {
             if (config.hasOwnProperty(p)) {
@@ -36,6 +56,14 @@ var util = require("bp-utilities"),
             funcList.push(fn);
         };
 
+        that.preListen = function(fn) {
+            funcsBeforeListen.push(fn);
+        };
+        
+        that.postListen = function(fn) {
+            funcsAfterListen.push(fn);
+        };
+        
         that.static = function(path) {
             that.use(require("./local_modules/static")(path));
         };
@@ -174,15 +202,31 @@ var util = require("bp-utilities"),
                         resx.error(404, {code: 404, message: "No resolution for request " + reqx.url});
                     }
                 });
-            }).listen(that.port);
-            console.log(ansi.blue(that.appname) + " now listening on port " + ansi.magenta(that.port));
-
-            if(that.websocket && that.websocket.enabled) {
-                that.wss = new WSServer({httpServer: that.server}, wsList);
-                console.log(ansi.blue(that.appname) + " websocket listening on port " + ansi.magenta(that.port));
-            } else {
-                that.wss = null;
-            }
+            });
+            
+            funcsBeforeListen.reduce(function (chain, fn) {
+                return chain.spread(makeChainable.bind(fn, fn));
+            }, q(that)).done(
+                function doListen() {
+                    console.log(ansi.blue(that.appname), ansi.yellow("Pre Listen Setup Complete"));
+                    that.server.listen(that.port);
+                    console.log(ansi.blue(that.appname), "now listening on port", ansi.magenta(that.port));
+                    
+                    if(that.websocket && that.websocket.enabled) {
+                        that.wss = new WSServer({httpServer: that.server}, wsList);
+                        console.log(ansi.blue(that.appname) + " websocket listening on port " + ansi.magenta(that.port));
+                    } else {
+                        that.wss = null;
+                    }
+                    
+                    funcsAfterListen.reduce(function (chain, fn) {
+                        return chain.spread(makeChainable.bind(fn, fn));
+                    }, q(that)).done(
+                        function doAfterListen() {
+                            console.log(ansi.blue(that.appname), ansi.yellow("Post Listen Setup Complete"));
+                        }
+                    );
+            });
 
             return that.server;
         };
