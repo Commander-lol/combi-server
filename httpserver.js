@@ -181,7 +181,7 @@ var util = require("bp-utilities"),
                         }
                         return core.promise;
                     };
-                if(that.websocket.enabled) {
+                if(that.websocket && that.websocket.enabled) {
                     resx.wss = that.wss;
                 }
                 resx.on("finish", function () {
