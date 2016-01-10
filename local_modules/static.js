@@ -7,7 +7,7 @@ var path = require("path"),
             stream, stat;
         try {
             if(fs.existsSync(fullpath) && (stat = fs.statSync(fullpath)).isFile()){
-                stream = fs.createReadStream(fullpath, {encoding: 'utf8'});
+                stream = fs.createReadStream(fullpath);
                 stream.on('end', function(){
                     results.resolve([req, res]);
                 });
