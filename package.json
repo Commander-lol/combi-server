@@ -1,6 +1,10 @@
 {
   "name": "combi-server",
+<<<<<<< HEAD
   "version": "1.3.4",
+=======
+  "version": "1.4.0",
+>>>>>>> origin/master
   "description": "A lightweight combined http/ws api server framework built to be extended",
   "main": "httpserver.js",
   "repository": {
@@ -15,7 +19,7 @@
     "api"
   ],
   "author": "Louis Capitanchik",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Commander-lol/combi-server/issues"
   },
